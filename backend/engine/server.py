@@ -90,6 +90,14 @@ app.mount("/reports", StaticFiles(directory=str(REPORTS_DIR), html=False), name=
 from backend.engine.router_counterfactual import router as counterfactual_router
 app.include_router(counterfactual_router)
 
+# Register scenario router (OPE simulation)
+try:
+    from backend.engine.router_scenario import router as scenario_router
+    app.include_router(scenario_router)
+    print("[engine] Scenario router registered")
+except Exception as e:
+    print(f"[engine] Scenario router disabled: {e}")
+
 def validate_estimator_requirements(df: pd.DataFrame, mapping: Dict[str, str], estimator: str) -> tuple[bool, list[str]]:
     """
     Validate if the dataframe has required columns for the given estimator.
