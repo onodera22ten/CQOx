@@ -123,6 +123,14 @@ try:
 except Exception as e:
     print(f"[engine] Scenario router disabled: {e}")
 
+# Register policy router (Optimal Policy Learning - Beyond NASA/Google)
+try:
+    from backend.engine.router_policy import router as policy_router
+    app.include_router(policy_router)
+    print("[engine] Policy router registered (Beyond NASA/Google)")
+except Exception as e:
+    print(f"[engine] Policy router disabled: {e}")
+
 def validate_estimator_requirements(df: pd.DataFrame, mapping: Dict[str, str], estimator: str) -> tuple[bool, list[str]]:
     """
     Validate if the dataframe has required columns for the given estimator.
