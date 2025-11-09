@@ -24,6 +24,7 @@ from backend.engine.money_view import MoneyView, MoneyParams
 from backend.engine.quality_gates_enhanced import EnhancedQualityGates
 from backend.common.schema_validator import StrictDataContract
 from backend.engine.counterfactual_automation import CounterfactualAutomation, automate_counterfactual_comparison
+from backend.reporting.narrative_generator import generate_executive_summary
 
 router = APIRouter(prefix="/api/scenario", tags=["scenario"])
 
@@ -140,8 +141,55 @@ async def simulate_scenario(req: SimulateRequest):
             wolfram_path=None  # Use fallback matplotlib if WolframONE not available
         )
 
+        # === NASA/Google++ Addition: Automated Narrative Generation ===
+        # Generate executive summary (business-oriented narrative)
+        try:
+            s0_dict = {
+                "s0_ate": result.s0_ate,
+                "s0_ate_ci": result.s0_ate_ci,
+                "s0_n_total": result.s0_n_total,
+                "s0_n_treated": result.s0_n_treated,
+                "s0_quality_decision": result.s0_quality_decision,
+                "s0_quality_pass_rate": result.s0_quality_pass_rate
+            }
+
+            s1_dict = {
+                "s1_ate": result.s1_ate,
+                "s1_ate_ci": result.s1_ate_ci,
+                "s1_n_treated": result.s1_n_treated,
+                "s1_coverage": result.s1_coverage,
+                "s1_total_cost": result.s1_total_cost,
+                "s1_profit": result.s1_profit,
+                "s1_profit_ci": result.s1_profit_ci,
+                "s1_quality_decision": result.s1_quality_decision,
+                "s1_quality_pass_rate": result.s1_quality_pass_rate
+            }
+
+            delta_dict = {
+                "delta_ate": result.delta_ate,
+                "delta_profit": result.delta_profit,
+                "delta_profit_ci": result.delta_profit_ci
+            }
+
+            business_context = {
+                "title": f"シナリオ分析: {spec.label}",
+                "date": result.timestamp,
+                "scenario_id": spec.id,
+                "dataset_id": req.dataset_id
+            }
+
+            narrative_markdown = generate_executive_summary(
+                s0_result=s0_dict,
+                s1_result=s1_dict,
+                delta_result=delta_dict,
+                business_context=business_context
+            )
+        except Exception as e:
+            print(f"[scenario] Narrative generation failed: {e}")
+            narrative_markdown = None
+
         # Convert to API response format
-        return {
+        response = {
             "run_id": result.run_id,
             "S0": {
                 "ATE": result.s0_ate,
@@ -173,6 +221,16 @@ async def simulate_scenario(req: SimulateRequest):
                 "runtime_ms": result.runtime_ms
             }
         }
+
+        # Add narrative if generated successfully
+        if narrative_markdown:
+            response["narrative"] = {
+                "format": "markdown",
+                "content": narrative_markdown,
+                "summary": narrative_markdown[:500] + "..." if len(narrative_markdown) > 500 else narrative_markdown
+            }
+
+        return response
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
