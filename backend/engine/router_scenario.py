@@ -23,6 +23,7 @@ from backend.engine.ope_simulator import OPESimulator, ScenarioSpec, compare_sce
 from backend.engine.money_view import MoneyView, MoneyParams
 from backend.engine.quality_gates_enhanced import EnhancedQualityGates
 from backend.common.schema_validator import StrictDataContract
+from backend.engine.counterfactual_automation import CounterfactualAutomation, automate_counterfactual_comparison
 
 router = APIRouter(prefix="/api/scenario", tags=["scenario"])
 
@@ -105,9 +106,13 @@ def create_scenario_spec_from_request(req: SimulateRequest) -> ScenarioSpec:
 @router.post("/simulate")
 async def simulate_scenario(req: SimulateRequest):
     """
-    Simulate counterfactual scenario using OPE
+    Simulate counterfactual scenario using automated comparison
 
-    Fast evaluation using logged data
+    Features:
+    - Automatic S0/S1 estimation
+    - All visualization panels generated
+    - Money-View applied
+    - Quality Gates evaluated
     """
     try:
         # Load dataset
@@ -116,90 +121,57 @@ async def simulate_scenario(req: SimulateRequest):
         # Create scenario spec
         spec = create_scenario_spec_from_request(req)
 
-        # Run OPE simulation
-        simulator = OPESimulator(df)
-
-        # Generate score column if not present (simplified)
-        score_col = None
-        if "cate_score" in df.columns:
-            score_col = "cate_score"
-        elif "uplift_score" in df.columns:
-            score_col = "uplift_score"
-
-        # Simulate
-        result = simulator.simulate_scenario(spec, method="dr", score_col=score_col)
-
-        # Also compute baseline (S0)
-        baseline_spec = ScenarioSpec(
-            id="S0",
-            label="Observation",
-            intervention_type="do",
-            do_value=None  # Observed treatment
-        )
-
-        # For baseline, use observed treatment
-        baseline_policy = df["treatment"].values
-        baseline_estimate = simulator.estimate_dr(baseline_policy)
-
-        # Compute S0
-        S0 = {
-            "ATE": baseline_estimate["mean"],
-            "CI": baseline_estimate["ci"],
-            "treated": int(baseline_policy.sum())
+        # Load column mapping (simplified - should come from dataset metadata)
+        mapping = {
+            "treatment": "treatment",
+            "outcome": "outcome",
+            "unit_id": "unit_id" if "unit_id" in df.columns else None,
+            "lat": "lat" if "lat" in df.columns else None,
+            "lon": "lon" if "lon" in df.columns else None,
         }
 
-        # Compute S1
-        S1 = {
-            "ATE": result["estimate"]["mean"],
-            "CI": result["estimate"]["ci"],
-            "treated": result["n_treated"]
-        }
-
-        # Compute delta
-        delta_ATE = S1["ATE"] - S0["ATE"]
-
-        # Money-view calculation
-        if spec.value_per_y:
-            delta_profit = result["profit"] - (S0["treated"] * (spec.cost_per_treated or 0))
-            delta_profit_ci = [
-                result["profit_ci"][0] - (S0["treated"] * (spec.cost_per_treated or 0)),
-                result["profit_ci"][1] - (S0["treated"] * (spec.cost_per_treated or 0))
-            ] if result["profit_ci"] else None
-        else:
-            delta_profit = None
-            delta_profit_ci = None
-
-        # Quality gates
-        quality_gates = EnhancedQualityGates()
-        gate_report = quality_gates.evaluate_all(
-            df,
-            estimate=S1["ATE"],
-            ci=tuple(S1["CI"]),
-            se=(S1["CI"][1] - S1["CI"][0]) / (2 * 1.96)
+        # Run automated counterfactual comparison
+        result = automate_counterfactual_comparison(
+            df=df,
+            mapping=mapping,
+            scenario_spec=spec,
+            estimator_method="AIPW",
+            ope_method="DR",
+            wolfram_path=None  # Use fallback matplotlib if WolframONE not available
         )
 
-        # Generate run ID
-        run_id = str(uuid.uuid4())
-
+        # Convert to API response format
         return {
-            "run_id": run_id,
-            "S0": S0,
-            "S1": S1,
+            "run_id": result.run_id,
+            "S0": {
+                "ATE": result.s0_ate,
+                "CI": list(result.s0_ate_ci),
+                "treated": result.s0_n_treated
+            },
+            "S1": {
+                "ATE": result.s1_ate,
+                "CI": list(result.s1_ate_ci),
+                "treated": result.s1_n_treated
+            },
             "delta": {
-                "ATE": delta_ATE,
+                "ATE": result.delta_ate,
                 "money": {
-                    "point": delta_profit,
-                    "CI": delta_profit_ci
-                } if delta_profit is not None else None
+                    "point": result.delta_profit,
+                    "CI": list(result.delta_profit_ci) if result.delta_profit_ci else None
+                } if result.delta_profit is not None else None
             },
             "quality": {
-                "overlap": gate_report.gates[0].value if len(gate_report.gates) > 0 else 0.0,
-                "gamma": 1.5,  # Placeholder
-                "smd": 0.1,  # Placeholder
-                "q": None
+                "S0_decision": result.s0_quality_decision,
+                "S1_decision": result.s1_quality_decision,
+                "S0_pass_rate": result.s0_quality_pass_rate,
+                "S1_pass_rate": result.s1_quality_pass_rate,
             },
-            "quality_gate_report": gate_report.to_dict(),
-            "fig_refs": []
+            "fig_refs": result.figures,  # All figure paths
+            "metadata": {
+                "run_id": result.run_id,
+                "timestamp": result.timestamp,
+                "runtime_ms": result.runtime_ms
+            }
         }
 
     except Exception as e:

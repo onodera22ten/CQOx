@@ -86,6 +86,31 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/reports", StaticFiles(directory=str(REPORTS_DIR), html=False), name="reports")
 
+# === Security Integration (NASA/Google Standard) ===
+try:
+    from backend.security import (
+        SecurityHeadersMiddleware,
+        AuditLoggingMiddleware,
+        IPBlockingMiddleware,
+        configure_cors,
+        validate_env_vars
+    )
+
+    # Validate environment variables
+    validate_env_vars()
+
+    # Configure CORS
+    configure_cors(app)
+
+    # Add security middleware (order matters - add in reverse order of execution)
+    app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(AuditLoggingMiddleware, log_request_body=False, log_response_body=False)
+    app.add_middleware(IPBlockingMiddleware)
+
+    print("[security] Security middleware enabled: CORS, Headers, Audit, IP Blocking")
+except Exception as e:
+    print(f"[security] Security middleware disabled: {e}")
+
 # Register counterfactual router
 from backend.engine.router_counterfactual import router as counterfactual_router
 app.include_router(counterfactual_router)
@@ -205,7 +230,23 @@ def load_objective_config(objective: str | None) -> Dict[str, Any]:
 
 @app.get("/api/health")
 async def health():
+    """Basic health check (fast)"""
     return {"ok": True, "service": "engine"}
+
+
+@app.get("/api/health/comprehensive")
+async def health_comprehensive():
+    """Comprehensive health check (includes all system components)"""
+    try:
+        from backend.engine.health_check import health_checker
+        return health_checker.check_all()
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "message": "Health check system failure"
+        }
+
 
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...)):
