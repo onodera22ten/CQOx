@@ -196,6 +196,133 @@ class FigureSelector:
             "min_groups": 5,
             "description": "Geographic policy impact map"
         },
+
+        # MANUFACTURING DOMAIN (4 figures)
+        "mfg_quality_control": {
+            "required_columns": ["y"],
+            "optional_columns": ["treatment"],
+            "min_rows": 50,
+            "description": "Quality control chart (X-bar and R)"
+        },
+        "mfg_yield_optimization": {
+            "required_columns": ["y", "treatment"],
+            "min_rows": 50,
+            "description": "Yield optimization by treatment"
+        },
+        "mfg_downtime_pareto": {
+            "required_one_of": ["downtime", "defect", "failure"],
+            "optional_columns": ["machine", "line"],
+            "min_rows": 30,
+            "description": "Downtime Pareto analysis"
+        },
+        "mfg_leadtime_distribution": {
+            "required_one_of": ["lead_time", "leadtime", "delivery_time"],
+            "min_rows": 50,
+            "description": "Supply chain lead time distribution"
+        },
+
+        # LOGISTICS DOMAIN (4 figures)
+        "logistics_delivery_performance": {
+            "required_one_of": ["delivery", "transit", "shipment"],
+            "optional_columns": ["treatment"],
+            "min_rows": 50,
+            "description": "Delivery performance analysis"
+        },
+        "logistics_warehouse_heatmap": {
+            "required_columns": ["y"],
+            "required_one_of": ["warehouse", "location", "facility"],
+            "optional_columns": ["time"],
+            "min_rows": 50,
+            "description": "Warehouse efficiency heatmap"
+        },
+        "logistics_route_optimization": {
+            "required_one_of": ["distance", "route"],
+            "optional_columns": ["cost", "treatment"],
+            "min_rows": 30,
+            "description": "Route optimization comparison"
+        },
+        "logistics_inventory_turnover": {
+            "required_one_of": ["inventory", "stock"],
+            "required_one_of_2": ["location", "warehouse"],
+            "min_rows": 30,
+            "description": "Inventory turnover by location"
+        },
+
+        # HR DOMAIN (4 figures)
+        "hr_attrition_analysis": {
+            "required_one_of": ["attrition", "turnover", "churn"],
+            "optional_columns": ["department", "dept"],
+            "min_rows": 50,
+            "description": "Employee attrition analysis"
+        },
+        "hr_training_effectiveness": {
+            "required_columns": ["y", "treatment"],
+            "min_rows": 50,
+            "description": "Training program effectiveness"
+        },
+        "hr_performance_distribution": {
+            "required_columns": ["y"],
+            "required_one_of": ["department", "dept", "division"],
+            "min_rows": 50,
+            "description": "Performance distribution by department"
+        },
+        "hr_retention_curve": {
+            "required_one_of": ["tenure", "years", "duration"],
+            "min_rows": 50,
+            "description": "Employee retention curve"
+        },
+
+        # AGRICULTURE DOMAIN (4 figures)
+        "agri_crop_yield": {
+            "required_columns": ["y", "treatment"],
+            "min_rows": 30,
+            "description": "Crop yield analysis"
+        },
+        "agri_weather_impact": {
+            "required_columns": ["y"],
+            "required_one_of": ["weather", "rain", "precipitation", "temperature"],
+            "min_rows": 50,
+            "description": "Weather impact on production"
+        },
+        "agri_fertilizer_effectiveness": {
+            "required_columns": ["y"],
+            "required_one_of": ["fertilizer", "treatment"],
+            "min_rows": 30,
+            "description": "Fertilizer effectiveness comparison"
+        },
+        "agri_seasonal_heatmap": {
+            "required_columns": ["y"],
+            "required_one_of": ["season", "time"],
+            "optional_columns": ["plot", "field"],
+            "min_rows": 50,
+            "description": "Seasonal performance heatmap"
+        },
+
+        # ENERGY DOMAIN (4 figures)
+        "energy_generation_consumption": {
+            "required_one_of": ["generation", "output"],
+            "required_one_of_2": ["consumption", "demand", "load"],
+            "min_rows": 50,
+            "description": "Power generation vs consumption"
+        },
+        "energy_renewable_mix": {
+            "required_columns": ["y"],
+            "required_one_of": ["source", "type", "fuel"],
+            "min_rows": 30,
+            "description": "Renewable energy mix analysis"
+        },
+        "energy_grid_load_pattern": {
+            "required_columns": ["y"],
+            "optional_columns": ["time"],
+            "min_rows": 50,
+            "description": "Grid load pattern (24h cyclical)"
+        },
+        "energy_efficiency_optimization": {
+            "required_columns": ["y"],
+            "required_one_of": ["source", "type"],
+            "min_rows": 30,
+            "description": "Efficiency optimization by source"
+        },
     }
 
     def __init__(self, df: pd.DataFrame, mapping: Dict[str, str], domain: str):
