@@ -1,0 +1,38 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # CQOx application logs
+  - job_name: cqox-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: cqox-app
+          __path__: /var/log/cqox/*.log
+
+  # Audit logs
+  - job_name: cqox-audit
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: cqox-audit
+          __path__: /var/log/cqox/audit/*.log
+
+  # Error logs
+  - job_name: cqox-errors
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: cqox-errors
+          level: error
+          __path__: /var/log/cqox/errors.log
