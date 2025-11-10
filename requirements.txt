@@ -41,3 +41,13 @@ passlib[bcrypt]
 
 # Testing
 pytest==7.4.3
+
+# Additional packages for full implementation
+scipy==1.11.4
+seaborn==0.13.0
+kaleido==0.2.1
+sqlalchemy==2.0.23
+python-dotenv==1.0.0
+requests==2.31.0
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
