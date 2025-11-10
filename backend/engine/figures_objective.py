@@ -1,6 +1,6 @@
 # backend/engine/figures_objective.py
 """
-Objective-Specific Visualization Generation (Col2 Specification)
+Objective-Specific Visualization Generation (Enhanced)
 
 Generates objective-tailored figures for:
 - Medical (6 figures)
@@ -9,8 +9,13 @@ Generates objective-tailored figures for:
 - Finance (4 figures)
 - Network (3 figures)
 - Policy (3 figures)
+- Manufacturing (4 figures)
+- Logistics (4 figures)
+- HR (4 figures)
+- Agriculture (4 figures)
+- Energy (4 figures)
 
-Total: 26 objective-specific figures
+Total: 46 objective-specific figures across 11 domains
 """
 from __future__ import annotations
 import numpy as np
@@ -106,6 +111,21 @@ class ObjectiveFigureGenerator:
             elif self.objective == "policy":
                 from backend.engine.figures_finance_network_policy import generate_policy_figures
                 figures.update(generate_policy_figures(self.df, self.mapping, output_dir))
+            elif self.objective == "manufacturing":
+                from backend.engine.figures_manufacturing import generate_manufacturing_figures
+                figures.update(generate_manufacturing_figures(self.df, self.mapping, output_dir))
+            elif self.objective == "logistics":
+                from backend.engine.figures_logistics import generate_logistics_figures
+                figures.update(generate_logistics_figures(self.df, self.mapping, output_dir))
+            elif self.objective == "hr":
+                from backend.engine.figures_hr import generate_hr_figures
+                figures.update(generate_hr_figures(self.df, self.mapping, output_dir))
+            elif self.objective == "agriculture":
+                from backend.engine.figures_agriculture import generate_agriculture_figures
+                figures.update(generate_agriculture_figures(self.df, self.mapping, output_dir))
+            elif self.objective == "energy":
+                from backend.engine.figures_energy import generate_energy_figures
+                figures.update(generate_energy_figures(self.df, self.mapping, output_dir))
 
         return figures
 
