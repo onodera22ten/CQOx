@@ -133,152 +133,58 @@ Results show CQOx achieves:
 
 ---
 
-## 🎨 8 World-Class Visualizations
+## 🎨 Interactive Visualizations
 
-CQOx delivers **publication-quality visualizations** with 3D/animated figures.
+CQOx delivers **publication-quality interactive visualizations** with 3D/animated figures powered by Plotly.
 
-### Visualization Portfolio
+### 📊 [View Full Visualization Gallery](https://onodera22ten.github.io/CQOx/)
 
-| # | Visualization | Type | Implementation |
-|---|--------------|------|----------------|
-| 1 | **Causal Surface 3D** | 3D Interactive Surface | Matplotlib 3D |
-| 2 | **ATE Animation** | Temporal Animation | 30-frame GIF |
-| 3 | **CAS Radar Chart** | Multi-Dimensional Quality | Polar Plot |
-| 4 | **Domain Network** | Causal Graph | NetworkX + Matplotlib |
-| 5 | **Policy Evaluation 3D** | Optimization Surface | 3D Mesh Plot |
-| 6 | **Network Spillover 3D** | 3D Network Graph | 3D Force-Directed Layout |
-| 7 | **CATE Landscape 3D** | Terrain Map | 3D Terrain Visualization |
-| 8 | **Spillover Dynamics** | Network Animation | 30-frame GIF |
+**Interactive HTML Visualizations:**
 
----
+#### Core Causal Inference (8 visualizations)
+1. **3D Network Graph** - Causal relationships network
+2. **Estimator Comparison** - Compare 8+ causal estimators
+3. **Propensity Score Distribution** - Treated vs Control groups
+4. **4D Visualization** - Treatment effect landscape
+5. **Time Series Animation** - Effect evolution over time
+6. **Interactive DAG** - Causal structure diagram
+7. **CATE Heatmap** - Heterogeneous effects by age × income
+8. **3D Treatment Effect Surface** - Interactive surface plot
 
-### 1. Causal Surface 3D
+#### Marketing ROI (5 visualizations)
+1. **Multi-Touch Attribution** - Compare attribution models
+2. **Channel ROI Comparison** - ROI vs spend analysis
+3. **LTV Distribution** - Customer lifetime value by channel
+4. **ROI vs Revenue** - Performance metrics
+5. **Budget Optimization** - Scenario comparison
 
-<img src="visualizations/python/causal_surface_3d.png" width="600" alt="Causal Surface 3D">
+### 🌐 Access Methods
 
-**Description**: 3D surface visualization of heterogeneous treatment effects across age × income dimensions. Identifies high-impact customer segments for targeted interventions.
+**Option 1: GitHub Pages (Recommended)**
+- Visit: https://onodera22ten.github.io/CQOx/
+- All 13 interactive visualizations
+- No installation required
 
----
+**Option 2: Local Files**
+- Navigate to `/visualizations/` folder
+- Open any `.html` file in your browser
+- Fully interactive Plotly charts
 
-### 2. ATE Animation
-
-<img src="visualizations/python/ate_animation.gif" width="600" alt="ATE Animation">
-
-**Description**: 30-frame animation showing temporal evolution of Average Treatment Effect with confidence intervals. Demonstrates treatment effect trajectory over 30 time periods.
-
----
-
-### 3. CAS Radar Chart
-
-<img src="visualizations/python/cas_radar_chart.png" width="600" alt="CAS Radar Chart">
-
-**Description**: Comprehensive Analytical System quality assessment across 5 dimensions: Validity (9.2/10), Precision (8.8/10), Robustness (8.1/10), Interpretability (9.0/10), Scalability (8.5/10). Overall score: 8.7/10.
-
----
-
-### 4. Domain Network
-
-<img src="visualizations/python/domain_network.png" width="600" alt="Domain Network">
-
-**Description**: Multi-domain causal network showing cross-domain effects across Healthcare, Finance, Marketing, and Education domains. Edge thickness represents effect magnitude.
+**Option 3: Generate Custom Visualizations**
+```bash
+python scripts/create_lightweight_visualizations.py
+python scripts/create_marketing_roi_visualizations.py
+```
 
 ---
 
-### 5. Policy Evaluation 3D
+### Visualization Features
 
-<img src="visualizations/python/policy_evaluation_3d.png" width="600" alt="Policy Evaluation 3D">
-
-**Description**: 3D optimization surface for policy evaluation. Coverage × Budget parameter space with optimal point marked (red star). Identifies maximum net benefit configuration.
-
----
-
-### 6. Network Spillover 3D
-
-<img src="visualizations/python/network_spillover_3d.png" width="600" alt="Network Spillover 3D">
-
-**Description**: 3D network graph showing spillover effects in social networks. Node size represents direct treatment effect, edges represent spillover pathways.
-
----
-
-### 7. CATE Landscape 3D
-
-<img src="visualizations/python/cate_landscape_3d.png" width="600" alt="CATE Landscape 3D">
-
-**Description**: Terrain map of Conditional Average Treatment Effects (CATE) across age × income space. Peak detection identifies high-impact subgroups (red triangle), valleys show low-impact regions (blue triangle).
-
----
-
-### 8. Spillover Dynamics Animation
-
-<img src="visualizations/python/spillover_dynamics_animation.gif" width="600" alt="Spillover Dynamics Animation">
-
-**Description**: 30-frame animation showing network spillover propagation. Visualizes wave-like diffusion of treatment effects through social networks over time.
-
----
-
-### Interactive HTML Visualizations (8 Additional)
-
-#### 9. CATE Heatmap (Interactive)
-
-[View Interactive Visualization](visualizations/cate_heatmap.html)
-
-**Description**: Interactive heatmap of Conditional Average Treatment Effects across two covariates. Hover for exact CATE values, zoom and pan controls.
-
----
-
-#### 10. 4D Visualization (Interactive)
-
-[View Interactive Visualization](visualizations/4d_visualization.html)
-
-**Description**: 4-dimensional visualization (3D position + color = 4th dimension). Explore high-dimensional treatment effect heterogeneity.
-
----
-
-#### 11. Estimator Comparison (Interactive)
-
-[View Interactive Visualization](visualizations/estimator_comparison.html)
-
-**Description**: Side-by-side comparison of ATE estimates from all 23 estimators with error bars (95% CI) and consensus estimate (median).
-
----
-
-#### 12. Time Series Animation (Interactive)
-
-[View Interactive Visualization](visualizations/time_series_animation.html)
-
-**Description**: Animated time series showing treated vs control outcomes over time with play/pause controls and parallel trends visualization.
-
----
-
-#### 13. 3D Network Graph (Interactive)
-
-[View Interactive Visualization](visualizations/3d_network_graph.html)
-
-**Description**: Interactive 3D network graph with rotation controls showing treatment effect diffusion in social networks.
-
----
-
-#### 14. Interactive DAG (Interactive)
-
-[View Interactive Visualization](visualizations/interactive_dag.html)
-
-**Description**: Interactive Directed Acyclic Graph showing causal relationships. Click nodes to highlight paths and adjust for confounders.
-
----
-
-#### 15. Propensity Score Distribution (Interactive)
-
-[View Interactive Visualization](visualizations/propensity_score_distribution.html)
-
-**Description**: Overlapping histograms of propensity scores for treated vs control with common support region highlighted and overlap statistics.
-
----
-
-#### 16. 3D Treatment Effect Surface (Interactive)
-
-[View Interactive Visualization](visualizations/3d_treatment_effect_surface.html)
-
-**Description**: Interactive 3D surface of treatment effects with rotation, zoom, and hover tooltips showing exact effect values.
+✅ **Fully Interactive** - Zoom, pan, rotate, hover for details
+✅ **Lightweight** - 8-35 KB per file (CDN-based)
+✅ **Responsive** - Works on desktop and mobile
+✅ **Publication Quality** - High-resolution graphics
+✅ **Customizable** - Modify source scripts
 
 ---
 

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CQOx - Visualization Gallery</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .viz-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .viz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .viz-card h2 {
+            margin-top: 0;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+        .viz-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .viz-card a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        .viz-card a:hover {
+            opacity: 0.9;
+        }
+        .category {
+            margin: 40px 0;
+        }
+        .category h2 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid rgba(255,255,255,0.3);
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            padding: 12px 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .back-link a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 CQOx Visualization Gallery</h1>
+        <p>Interactive HTML Visualizations for Causal Inference</p>
+    </div>
+
+    <div class="category">
+        <h2>📊 Core Causal Inference Visualizations</h2>
+        <div class="gallery">
+            <div class="viz-card">
+                <h2>3D Network Graph</h2>
+                <p>Interactive 3D network showing causal relationships between variables with treatment effects.</p>
+                <a href="../visualizations/3d_network_graph.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>Estimator Comparison</h2>
+                <p>Compare 8 different causal estimators (PSM, IPW, Double ML, Causal Forest, DiD, RDD, IV, Synthetic Control) with confidence intervals.</p>
+                <a href="../visualizations/estimator_comparison.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>Propensity Score Distribution</h2>
+                <p>Overlapping histograms showing propensity score distributions for treated and control groups.</p>
+                <a href="../visualizations/propensity_score_distribution.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>4D Visualization</h2>
+                <p>4D treatment effect landscape using 3D scatter with color as the fourth dimension.</p>
+                <a href="../visualizations/4d_visualization.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>Time Series Animation</h2>
+                <p>Animated visualization showing treatment effect evolution over time with interactive slider.</p>
+                <a href="../visualizations/time_series_animation.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>Interactive DAG</h2>
+                <p>Directed Acyclic Graph showing causal structure with treatment, mediators, outcome, and confounders.</p>
+                <a href="../visualizations/interactive_dag.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>CATE Heatmap</h2>
+                <p>Conditional Average Treatment Effect heatmap showing heterogeneous effects across age and income.</p>
+                <a href="../visualizations/cate_heatmap.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>3D Treatment Effect Surface</h2>
+                <p>Interactive 3D surface plot showing treatment effects across age and income dimensions.</p>
+                <a href="../visualizations/3d_treatment_effect_surface.html" target="_blank">View Visualization →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2>💰 Marketing ROI Visualizations</h2>
+        <div class="gallery">
+            <div class="viz-card">
+                <h2>Multi-Touch Attribution</h2>
+                <p>Compare different attribution models (First Touch, Last Touch, Linear, Time Decay) across marketing channels.</p>
+                <a href="../visualizations/marketing_roi/multi_touch_attribution.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>Channel ROI Comparison</h2>
+                <p>Scatter plot comparing ROI vs marketing spend across different channels.</p>
+                <a href="../visualizations/marketing_roi/channel_roi_comparison.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>LTV Distribution</h2>
+                <p>Customer Lifetime Value distributions segmented by acquisition channel.</p>
+                <a href="../visualizations/marketing_roi/ltv_distribution.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>ROI vs Revenue</h2>
+                <p>Relationship between ROI and revenue generated, segmented by marketing channel.</p>
+                <a href="../visualizations/marketing_roi/roi_vs_revenue.html" target="_blank">View Visualization →</a>
+            </div>
+
+            <div class="viz-card">
+                <h2>Budget Optimization</h2>
+                <p>Compare current budget allocation with optimized scenarios showing ROI and revenue impact.</p>
+                <a href="../visualizations/marketing_roi/budget_optimization_comparison.html" target="_blank">View Visualization →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="https://github.com/onodera22ten/CQOx">← Back to GitHub Repository</a>
+    </div>
+</body>
+</html>
