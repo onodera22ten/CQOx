@@ -53,22 +53,86 @@
 
 ---
 
-## 🎨 8 World-Class Visualizations (WolframONE)
+## 🎨 8種類のWolframONE世界最高峰可視化
 
-CQOx delivers **NASA/Meta-level visualizations** using Wolfram Language, surpassing academic publication standards.
+CQOx delivers **NASA/Meta-level visualizations** surpassing academic publication standards.
 
-### Visualization Portfolio
+### 可視化ポートフォリオ
 
-| # | Visualization | Type | File | Standards |
-|---|--------------|------|------|-----------|
-| 1 | **Causal Surface 3D** | 3D Interactive | `causal_surface_3d.wls` | Google Causal Impact |
-| 2 | **ATE Animation** | Temporal Animation | `ate_animation.wls` | Meta Prophet |
-| 3 | **CAS Radar Chart** | Multi-Dimensional | `cas_radar_chart.wls` | NASA Quality Gates |
-| 4 | **Domain Network** | Graph Visualization | `domain_network.wls` | Meta AI GNN |
-| 5 | **Policy Evaluation 3D** | Optimization Surface | `shadow_price_net_benefit.wls` | BCG Strategy |
-| 6 | **Network Spillover 3D** | 3D Graph | `network_spillover_3d.wls` | Google DeepMind |
-| 7 | **CATE Landscape 3D** | Terrain Map | `cate_landscape_3d.wls` | WPP Segmentation |
-| 8 | **Spillover Dynamics** | Network Animation | `spillover_dynamics_animation.wls` | Meta Diffusion Models |
+| # | 可視化 | タイプ | 基準 | ファイル |
+|---|--------|--------|------|---------|
+| 1 | **Causal Surface 3D** | 3D対話型 | Google Causal Impact | `causal_surface_3d.wls` |
+| 2 | **ATE Animation** | 時系列アニメーション | Meta Prophet | `ate_animation.wls` |
+| 3 | **CAS Radar Chart** | 多次元評価 | NASA Quality Gates | `cas_radar_chart.wls` |
+| 4 | **Domain Network** | グラフ可視化 | Meta AI GNN | `domain_network.wls` |
+| 5 | **Policy Evaluation 3D** | 最適化曲面 | BCG Strategy | `shadow_price_net_benefit.wls` |
+| 6 | **Network Spillover 3D** | 3Dグラフ | Google DeepMind | `network_spillover_3d.wls` ✨ NEW |
+| 7 | **CATE Landscape 3D** | 地形マップ | WPP Segmentation | `cate_landscape_3d.wls` ✨ NEW |
+| 8 | **Spillover Dynamics** | ネットワークアニメーション | Meta Diffusion | `spillover_dynamics_animation.wls` ✨ NEW |
+
+### 生成された可視化（全8種類）
+
+#### 1. Causal Surface 3D - 因果効果曲面
+
+![Causal Surface 3D](visualizations/python/causal_surface_3d.png)
+
+**説明**: 年齢×収入の2次元空間における異質な処置効果を3D曲面で可視化
+
+---
+
+#### 2. ATE Animation - 平均処置効果の時系列推移
+
+![ATE Animation](visualizations/python/ate_animation.gif)
+
+**説明**: 30期間にわたる平均処置効果の動的な変化をアニメーション表示
+
+---
+
+#### 3. CAS Radar Chart - 包括的分析システム品質評価
+
+![CAS Radar Chart](visualizations/python/cas_radar_chart.png)
+
+**説明**: 5次元（妥当性・精度・頑健性・解釈可能性・拡張性）でのNASA品質ゲート評価
+
+---
+
+#### 4. Domain Network - マルチドメイン因果ネットワーク
+
+![Domain Network](visualizations/python/domain_network.png)
+
+**説明**: 複数ドメイン（医療・金融・マーケティング・教育）間の因果関係を可視化
+
+---
+
+#### 5. Policy Evaluation 3D - 政策評価の最適化曲面
+
+![Policy Evaluation 3D](visualizations/python/policy_evaluation_3d.png)
+
+**説明**: カバレッジ×予算の2次元パラメータ空間における純便益の最適化曲面
+
+---
+
+#### 6. Network Spillover 3D - ネットワークスピルオーバー効果
+
+![Network Spillover 3D](visualizations/python/network_spillover_3d.png)
+
+**説明**: 社会ネットワーク上での処置効果の波及を3Dグラフで表現
+
+---
+
+#### 7. CATE Landscape 3D - 条件付き処置効果の地形図
+
+![CATE Landscape 3D](visualizations/python/cate_landscape_3d.png)
+
+**説明**: 年齢×収入空間におけるCATE（条件付き平均処置効果）を地形マップとして可視化。ピーク（高効果）とバレー（低効果）を特定。
+
+---
+
+#### 8. Spillover Dynamics Animation - スピルオーバー動的拡散
+
+![Spillover Dynamics Animation](visualizations/python/spillover_dynamics_animation.gif)
+
+**説明**: ネットワーク上での処置の波及過程を30フレームのアニメーションで表現
 
 ---
 
@@ -306,11 +370,48 @@ wolframscript backend/wolfram/spillover_dynamics_animation.wls \
 
 ---
 
-## 🧮 20+ Causal Estimators
+## 🧮 20+種類の因果推論推定器（全て実装済み）
 
-CQOx implements **20+ production-ready causal inference methods** covering the full academic spectrum.
+CQOx implements **23 production-ready causal inference methods** covering the full academic spectrum.
 
-### Estimator Matrix
+### 推定器の分類
+
+#### 基本推定器（1-6）
+1. **PSM** - Propensity Score Matching（傾向スコアマッチング）
+2. **IPW** - Inverse Probability Weighting（逆確率重み付け）
+3. **TVCE** - Treatment vs Control Estimation（Double ML）
+4. **OPE** - Off-Policy Evaluation（オフポリシー評価）
+5. **Regression Adjustment** - 回帰調整
+6. **Stratification** - 層別化分析
+
+#### 時系列・パネルデータ（7-10）
+7. **DiD** - Difference-in-Differences（差の差分析）
+8. **IV** - Instrumental Variables（操作変数法）
+9. **RD** - Regression Discontinuity（回帰不連続デザイン）
+10. **Synthetic Control** - 合成コントロール法
+
+#### 高度な異質性分析（11-16）
+11. **CATE** - Conditional Average Treatment Effect（条件付き平均処置効果）
+12. **Causal Forest** - 因果推論ランダムフォレスト
+13. **Mediation** - 媒介分析
+14. **Dose-Response** - 用量反応分析
+15. **ITS** - Interrupted Time Series（時系列中断分析）
+16. **Panel Matching** - パネルデータマッチング
+
+#### ネットワーク・地理空間（17-20）
+17. **Network Effects** - ネットワーク効果（スピルオーバー推定）
+18. **Geographic** - 地理空間分析（空間自己相関）
+19. **Transportability** - 転移可能性分析（外的妥当性）
+20. **Proximal Causal** - 近接因果推論（未観測交絡への対応）
+
+#### ロバストネス（21-23）
+21. **Sensitivity Analysis** - 感度分析（E値計算）
+22. **g-Computation** - g計算法（パラメトリックg公式）
+23. **Bootstrap** - ブートストラップ推論
+
+---
+
+### Estimator Matrix (Full Details)
 
 | # | Estimator | Method | File | Standards | Use Case |
 |---|-----------|--------|------|-----------|----------|
