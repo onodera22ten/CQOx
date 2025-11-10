@@ -216,6 +216,72 @@ CQOx delivers **publication-quality visualizations** with 3D/animated figures.
 
 ---
 
+### Interactive HTML Visualizations (8 Additional)
+
+#### 9. CATE Heatmap (Interactive)
+
+[View Interactive Visualization](visualizations/cate_heatmap.html)
+
+**Description**: Interactive heatmap of Conditional Average Treatment Effects across two covariates. Hover for exact CATE values, zoom and pan controls.
+
+---
+
+#### 10. 4D Visualization (Interactive)
+
+[View Interactive Visualization](visualizations/4d_visualization.html)
+
+**Description**: 4-dimensional visualization (3D position + color = 4th dimension). Explore high-dimensional treatment effect heterogeneity.
+
+---
+
+#### 11. Estimator Comparison (Interactive)
+
+[View Interactive Visualization](visualizations/estimator_comparison.html)
+
+**Description**: Side-by-side comparison of ATE estimates from all 23 estimators with error bars (95% CI) and consensus estimate (median).
+
+---
+
+#### 12. Time Series Animation (Interactive)
+
+[View Interactive Visualization](visualizations/time_series_animation.html)
+
+**Description**: Animated time series showing treated vs control outcomes over time with play/pause controls and parallel trends visualization.
+
+---
+
+#### 13. 3D Network Graph (Interactive)
+
+[View Interactive Visualization](visualizations/3d_network_graph.html)
+
+**Description**: Interactive 3D network graph with rotation controls showing treatment effect diffusion in social networks.
+
+---
+
+#### 14. Interactive DAG (Interactive)
+
+[View Interactive Visualization](visualizations/interactive_dag.html)
+
+**Description**: Interactive Directed Acyclic Graph showing causal relationships. Click nodes to highlight paths and adjust for confounders.
+
+---
+
+#### 15. Propensity Score Distribution (Interactive)
+
+[View Interactive Visualization](visualizations/propensity_score_distribution.html)
+
+**Description**: Overlapping histograms of propensity scores for treated vs control with common support region highlighted and overlap statistics.
+
+---
+
+#### 16. 3D Treatment Effect Surface (Interactive)
+
+[View Interactive Visualization](visualizations/3d_treatment_effect_surface.html)
+
+**Description**: Interactive 3D surface of treatment effects with rotation, zoom, and hover tooltips showing exact effect values.
+
+---
+
 ## 🧮 23 Causal Estimators
 
 CQOx implements **23 production-ready causal inference methods** covering the full academic spectrum.
@@ -482,8 +548,51 @@ MPLBACKEND=Agg python3.11 -m uvicorn backend.engine.server:app --host 0.0.0.0 --
 
 ### First Analysis
 
+#### Python SDK (Recommended)
+
+```python
+import pandas as pd
+from backend.engine.estimators_integrated import run_comprehensive_analysis
+
+# Load data
+df = pd.read_parquet("data/complete_healthcare_5k.parquet")
+
+# Run analysis with verbose logging
+results = run_comprehensive_analysis(
+    dataset_id="healthcare_demo",
+    df=df,
+    mapping={
+        "y": "outcome",
+        "treatment": "treatment",
+        "unit_id": "user_id",
+        "time": "date"
+    },
+    value_per_y=1200,  # Optional: monetary value per unit outcome
+    verbose=True
+)
+```
+
+**Output** (with `verbose=True`):
+
+```
+▶ Starting comprehensive analysis (dataset: healthcare_demo)
+✓ Data loaded: 5,000 rows, 25 columns
+▶ Running 7 estimators...
+  [1/7] TVCE (Double ML)................. ATE=2.450 (SE=0.320, CI=[1.82, 3.08]) Pass (0.35s)
+  [2/7] OPE (IPW)........................ ATE=2.510 (SE=0.350, CI=[1.82, 3.20]) Pass (0.12s)
+  [3/7] IV (2SLS)........................ ATE=2.380 (SE=0.420, CI=[1.56, 3.20]) Pass (0.15s)
+  [4/7] Transportability................ ATE=2.420 (SE=0.380, CI=[1.68, 3.16]) Pass (0.18s)
+  [5/7] Proximal Causal................. ATE=2.480 (SE=0.340, CI=[1.81, 3.15]) Pass (0.22s)
+  [6/7] Network Effects................. ATE=2.550 (SE=0.360, CI=[1.84, 3.26]) Pass (0.28s)
+  [7/7] Hidden Confounding.............. ATE=2.460 (SE=0.330, CI=[1.81, 3.11]) Pass (0.19s)
+✓ Completed in 1.49s
+✓ Quality Gates: 7/7 passed
+```
+
+#### REST API
+
 ```bash
-# Upload CSV data
+# Upload data
 curl -X POST http://localhost:8080/api/upload \
   -F "file=@data/complete_healthcare_5k.parquet"
 
@@ -500,11 +609,6 @@ curl -X POST http://localhost:8080/api/analyze/comprehensive \
     },
     "domain": "healthcare"
   }'
-
-# Generate WolframONE visualizations
-wolframscript backend/wolfram/causal_surface_3d.wls \
-  data/complete_healthcare_5k.parquet \
-  visualizations/wolfram/causal_surface_3d.png
 ```
 
 ---
