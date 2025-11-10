@@ -8,15 +8,19 @@ Features:
 - Request/response logging
 - Audit trail
 - IP blocking
+- Rate limiting (Redis-based)
 """
 
+import os
 import time
 import json
 import logging
 from typing import Callable, List, Optional
 from pathlib import Path
+from collections import defaultdict
 
-from fastapi import Request, Response
+import redis
+from fastapi import Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
@@ -253,6 +257,168 @@ class IPBlockingMiddleware(BaseHTTPMiddleware):
                 self.failed_attempts[client_ip] = (1, time.time())
 
         return response
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """
+    Rate limiting middleware using Redis
+
+    Features:
+    - Per-IP rate limiting
+    - Per-API-key rate limiting
+    - Configurable limits
+    - Sliding window algorithm
+    - Automatic Redis fallback to in-memory
+    """
+
+    def __init__(
+        self,
+        app,
+        default_limit: int = 100,
+        window_seconds: int = 60
+    ):
+        super().__init__(app)
+        self.default_limit = default_limit
+        self.window_seconds = window_seconds
+
+        # Try to connect to Redis
+        try:
+            redis_host = os.getenv("REDIS_HOST", "localhost")
+            redis_port = int(os.getenv("REDIS_PORT", "6379"))
+            redis_db = int(os.getenv("REDIS_DB", "1"))
+
+            self.redis = redis.Redis(
+                host=redis_host,
+                port=redis_port,
+                db=redis_db,
+                decode_responses=True,
+                socket_connect_timeout=5
+            )
+            self.redis.ping()
+            self.redis_available = True
+            logging.info("✅ Rate limiting using Redis")
+
+        except Exception as e:
+            logging.warning(f"⚠️  Redis unavailable, using in-memory rate limiting: {e}")
+            self.redis = None
+            self.redis_available = False
+            self.in_memory_store = defaultdict(list)
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # Get identifier
+        identifier = self._get_identifier(request)
+
+        # Check rate limit
+        is_allowed, info = self._check_rate_limit(identifier)
+
+        # Add rate limit headers
+        headers = {
+            "X-RateLimit-Limit": str(info["limit"]),
+            "X-RateLimit-Remaining": str(info["remaining"]),
+            "X-RateLimit-Reset": str(info["reset"])
+        }
+
+        if not is_allowed:
+            headers["Retry-After"] = str(info["retry_after"])
+            audit_logger.warning(f"Rate limit exceeded for {identifier}")
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Rate limit exceeded"},
+                headers=headers
+            )
+
+        # Process request
+        response = await call_next(request)
+
+        # Add headers to response
+        for key, value in headers.items():
+            response.headers[key] = value
+
+        return response
+
+    def _get_identifier(self, request: Request) -> str:
+        """Get unique identifier for rate limiting"""
+        # 1. Check API key
+        api_key = request.headers.get("X-API-Key")
+        if api_key:
+            return f"api_key:{api_key[:16]}"
+
+        # 2. Check user from state (set by auth middleware)
+        user_id = getattr(request.state, "user_id", None)
+        if user_id:
+            return f"user:{user_id}"
+
+        # 3. Fallback to IP
+        client_ip = request.client.host if request.client else "unknown"
+        return f"ip:{client_ip}"
+
+    def _check_rate_limit(self, identifier: str) -> tuple:
+        """Check if request is within rate limit"""
+        now = time.time()
+        key = f"rate_limit:{identifier}"
+
+        if self.redis_available:
+            return self._check_redis(key, now)
+        else:
+            return self._check_memory(key, now)
+
+    def _check_redis(self, key: str, now: float) -> tuple:
+        """Check rate limit using Redis sorted set"""
+        pipe = self.redis.pipeline()
+
+        # Remove old entries
+        pipe.zremrangebyscore(key, 0, now - self.window_seconds)
+
+        # Count current requests
+        pipe.zcard(key)
+
+        # Add current request
+        pipe.zadd(key, {str(now): now})
+
+        # Set expiration
+        pipe.expire(key, self.window_seconds)
+
+        results = pipe.execute()
+        current_count = results[1]
+
+        # Calculate reset time
+        reset_at = int(now + self.window_seconds)
+
+        is_allowed = current_count < self.default_limit
+
+        info = {
+            "limit": self.default_limit,
+            "remaining": max(0, self.default_limit - current_count - 1),
+            "reset": reset_at,
+            "retry_after": int(self.window_seconds) if not is_allowed else 0
+        }
+
+        return is_allowed, info
+
+    def _check_memory(self, key: str, now: float) -> tuple:
+        """Check rate limit using in-memory storage"""
+        # Clean old entries
+        self.in_memory_store[key] = [
+            ts for ts in self.in_memory_store[key]
+            if ts > now - self.window_seconds
+        ]
+
+        current_count = len(self.in_memory_store[key])
+        is_allowed = current_count < self.default_limit
+
+        if is_allowed:
+            self.in_memory_store[key].append(now)
+
+        reset_at = int(now + self.window_seconds)
+
+        info = {
+            "limit": self.default_limit,
+            "remaining": max(0, self.default_limit - current_count - 1),
+            "reset": reset_at,
+            "retry_after": int(self.window_seconds) if not is_allowed else 0
+        }
+
+        return is_allowed, info
 
 
 # CORS configuration

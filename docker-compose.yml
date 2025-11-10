@@ -1,18 +1,200 @@
+version: '3.8'
+
 services:
-  engine:
-    build: { context: ., dockerfile: Dockerfile.engine }
+  # ===== Application Services =====
+
+  # Main API (Port 8080 - non-conflicting with mission-ctl-CQOx)
+  cqox-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cqox-api
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DATABASE_URL=postgresql://${DB_USER:-cqox_user}:${DB_PASSWORD}@timescaledb:5432/${DB_NAME:-cqox_db}
+      - DB_POOL_SIZE=20
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - VAULT_ENABLED=true
+      - VAULT_URL=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN:-root}
+      - PROMETHEUS_ENABLED=true
+      - LOKI_URL=http://loki:3100
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+      - WOLFRAM_API_KEY=${WOLFRAM_API_KEY}
     volumes:
-      - "./reports:/app/reports:z"
-      - "./data:/app/data:z"
-      - "./backend:/app/backend:z"
-    ports: [ "8081:8080" ]
-  gateway:
-    build: { context: '.', dockerfile: Dockerfile.gateway }
-    volumes: [ "./reports:/app/reports:z", "./data:/app/data:z" ]
-    depends_on: [ engine ]
-    environment: [ "ENGINE_URL=http://engine:8080" ]
-    ports: [ "8080:8080" ]
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./backend:/app/backend
+    depends_on:
+      - timescaledb
+      - redis
+      - vault
+    networks:
+      - cqox-network
+    restart: unless-stopped
+
+  # Frontend
   frontend:
-    build: { context: '.', dockerfile: Dockerfile.frontend }
-    depends_on: [ gateway ]
-    ports: [ "4000:80" ]
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: cqox-frontend
+    ports:
+      - "4000:80"
+    depends_on:
+      - cqox-api
+    networks:
+      - cqox-network
+    restart: unless-stopped
+
+  # ===== Database =====
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: cqox-timescaledb
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${DB_NAME:-cqox_db}
+      - POSTGRES_USER=${DB_USER:-cqox_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+    networks:
+      - cqox-network
+    restart: unless-stopped
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+
+  # ===== Cache =====
+
+  redis:
+    image: redis:7-alpine
+    container_name: cqox-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - cqox-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb
+
+  # ===== Secret Management =====
+
+  vault:
+    image: vault:latest
+    container_name: cqox-vault
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN:-root}
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/data
+    networks:
+      - cqox-network
+    restart: unless-stopped
+    command: server -dev
+
+  # ===== Monitoring =====
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cqox-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - cqox-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cqox-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    networks:
+      - cqox-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # ===== Logging =====
+
+  loki:
+    image: grafana/loki:latest
+    container_name: cqox-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-data:/loki
+    networks:
+      - cqox-network
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: cqox-promtail
+    volumes:
+      - ./logs:/var/log/cqox
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - cqox-network
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  # ===== Tracing =====
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: cqox-jaeger
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    volumes:
+      - jaeger-data:/badger
+    networks:
+      - cqox-network
+    restart: unless-stopped
+
+networks:
+  cqox-network:
+    driver: bridge
+
+volumes:
+  timescaledb-data:
+  redis-data:
+  vault-data:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  jaeger-data:
