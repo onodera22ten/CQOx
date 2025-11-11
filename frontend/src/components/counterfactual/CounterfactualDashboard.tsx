@@ -14,6 +14,7 @@ import { runScenario, listScenarios, runBatchScenarios, exportDecisionCard } fro
 import DecisionBadge, { Decision } from './DecisionBadge';
 import ComparisonPanel from './ComparisonPanel';
 import QualityGatesPanel, { QualityGatesData } from './QualityGatesPanel';
+import { SmartFigure } from '../ui/SmartFigure';
 
 interface Scenario {
   id: string;
@@ -328,12 +329,78 @@ export default function CounterfactualDashboard({ datasetId }: CounterfactualDas
             border: '1px solid #334155',
             borderRadius: '8px',
             fontSize: '12px',
-            color: '#94a3b8'
+            color: '#94a3b8',
+            marginBottom: '24px'
           }}>
             <strong>Mode:</strong> {result.mode.toUpperCase()} |{' '}
             <strong>Scenario ID:</strong> {result.scenario_id} |{' '}
             <strong>Status:</strong> {result.status}
           </div>
+
+          {/* WolframONE Visualizations */}
+          {result.figures && Object.keys(result.figures).length > 0 && (
+            <div style={{
+              padding: '24px',
+              background: '#1e293b',
+              borderRadius: '16px',
+              border: '1px solid #334155'
+            }}>
+              <h3 style={{
+                margin: '0 0 20px 0',
+                fontSize: '20px',
+                fontWeight: 600,
+                color: '#e2e8f0',
+                borderBottom: '2px solid #8b5cf6',
+                paddingBottom: '12px'
+              }}>
+                🧮 WolframONE Visualizations
+              </h3>
+              <p style={{
+                fontSize: '13px',
+                color: '#94a3b8',
+                marginBottom: '20px'
+              }}>
+                NASA/Google standard interactive visualizations (Base/CF/Δ)
+              </p>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                gap: '20px'
+              }}>
+                {Object.entries(result.figures).map(([figureType, figurePath]) => (
+                  <div key={figureType} style={{
+                    background: '#0f172a',
+                    borderRadius: '12px',
+                    border: '1px solid #475569',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      padding: '12px 16px',
+                      background: '#1e293b',
+                      borderBottom: '1px solid #475569'
+                    }}>
+                      <h4 style={{
+                        margin: 0,
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        color: '#a78bfa',
+                        textTransform: 'capitalize'
+                      }}>
+                        {figureType.replace(/_/g, ' ')}
+                      </h4>
+                    </div>
+                    <div style={{ padding: '16px' }}>
+                      <SmartFigure
+                        src={figurePath}
+                        alt={figureType}
+                        title={figureType}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
