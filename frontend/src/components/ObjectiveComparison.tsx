@@ -9,8 +9,14 @@ const ObjectiveComparison = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scenarioParams, setScenarioParams] = useState<ScenarioParams>({
-    coverage: 30,
-    budget_cap: 12000000,
+    coverage: 30,              // 30% カバレッジ
+    budget_cap: 12000000,      // 1200万円予算
+    policy_threshold: 0.5,     // 閾値 0.5
+    neighbor_boost: 0.1,       // ネットワーク効果 10%
+    geo_multiplier: 1.0,       // 地域倍率 1.0x
+    network_size: 20,          // ネットワークサイズ 20
+    value_per_y: 1000,         // 1単位1000円
+    cost_per_treated: 500,     // 処置コスト500円
   });
 
   const handleScenarioComplete = useCallback((data: any) => {

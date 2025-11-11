@@ -88,11 +88,29 @@ export async function runScenario(args: {
   dataset_id: string;
   scenario: string;
   mode?: "ope" | "gcomp";
+  // 反実仮想パラメータ（8個）
+  coverage?: number;
+  budget_cap?: number;
+  policy_threshold?: number;
+  neighbor_boost?: number;
+  geo_multiplier?: number;
+  network_size?: number;
+  value_per_y?: number;
+  cost_per_treated?: number;
 }) {
   const { data } = await api.post("/scenario/run", {
     dataset_id: args.dataset_id,
     scenario: args.scenario,
     mode: args.mode || "ope",
+    // 反実仮想パラメータを送信
+    coverage: args.coverage,
+    budget_cap: args.budget_cap,
+    policy_threshold: args.policy_threshold,
+    neighbor_boost: args.neighbor_boost,
+    geo_multiplier: args.geo_multiplier,
+    network_size: args.network_size,
+    value_per_y: args.value_per_y,
+    cost_per_treated: args.cost_per_treated,
   });
   return data as {
     status: string;
