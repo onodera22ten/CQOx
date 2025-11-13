@@ -317,7 +317,7 @@ docker compose exec backend python scripts/generate_marketing_10k.py
 ### 実行
 
 ```bash
-docker compose exec backend python scripts/preprocess_marketing.py
+docker compose exec backend python scripts/data_preprocessing_pipeline.py
 ```
 
 ### 処理内容
