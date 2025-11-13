@@ -151,26 +151,21 @@ const ObjectiveComparison = () => {
             <div className="mt-6">
               <h3 className="text-lg font-semibold mb-3">可視化 (S0 vs S1 比較)</h3>
               <div className="space-y-6">
-                {Object.entries(
-                  Object.entries(comparisonData.figures).reduce((acc: any, [name, url]) => {
-                    const panelName = name.replace(/__S[01].*$/, '');
-                    if (!acc[panelName]) acc[panelName] = {};
-                    if (name.includes('__S0')) {
-                      acc[panelName].s0 = url;
-                    } else if (name.includes('__S1')) {
-                      acc[panelName].s1 = url;
-                    }
-                    return acc;
-                  }, {})
-                ).map(([panelName, urls]: [string, any]) => (
-                  <SmartFigureCompare
-                    key={panelName}
-                    title={panelName}
-                    srcLeft={urls.s0}
-                    srcRight={urls.s1}
-                    labelRight={`S1 (反実仮想: ${comparisonData.scenario_id})`}
-                  />
-                ))}
+                {Object.entries(comparisonData.figures).map(([panelName, urls]: [string, any]) => {
+                  // バックエンドがネスト構造で返す場合：{"S0": "...", "S1": "..."}
+                  if (urls && typeof urls === 'object' && (urls.S0 || urls.S1)) {
+                    return (
+                      <SmartFigureCompare
+                        key={panelName}
+                        title={panelName}
+                        srcLeft={urls.S0}
+                        srcRight={urls.S1}
+                        labelRight={`S1 (反実仮想: ${comparisonData.scenario_id})`}
+                      />
+                    );
+                  }
+                  return null;
+                })}
               </div>
             </div>
           )}
