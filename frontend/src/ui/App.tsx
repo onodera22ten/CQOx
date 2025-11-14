@@ -261,6 +261,24 @@ export default function App() {
           >
             DAG可視化
           </Link>
+          <Link
+            to="/dag-comprehensive"
+            state={{ datasetId: currentDatasetId }}
+            style={{
+              padding: "10px 20px",
+              background: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+              transition: "all 0.2s",
+              border: "2px solid #fbbf24",
+            }}
+          >
+            ⭐ DAG包括分析 (100万円級)
+          </Link>
         </div>
       </div>
 

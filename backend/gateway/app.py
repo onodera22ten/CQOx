@@ -19,6 +19,9 @@ from starlette.staticfiles import StaticFiles  # 追加
 # Import enhanced objective router
 from backend.engine.router_objective_enhanced import router as objective_enhanced_router
 
+# Import DAG comprehensive analysis router
+from backend.engine.router_dag_comprehensive import router as dag_comprehensive_router
+
 # Import resilience patterns
 try:
     from backend.resilience.circuit_breaker import circuit_breaker
@@ -34,6 +37,7 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 UPLOAD_DIR = BASE_DIR / "data" / "uploads"
 REGISTRY_PATH = BASE_DIR / "data" / "registry.json"
 REPORTS_DIR = BASE_DIR / "reports"  # 追加
+ARTIFACTS_DIR = BASE_DIR / "artifacts"  # DAG用
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger("gateway")
@@ -61,9 +65,17 @@ app.add_middleware(
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/reports", StaticFiles(directory=str(REPORTS_DIR), html=False), name="reports")
 
+# /artifacts を静的公開（DAG用）
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/artifacts", StaticFiles(directory=str(ARTIFACTS_DIR), html=False), name="artifacts")
+
 # Register enhanced objective router
 app.include_router(objective_enhanced_router, prefix="/api")
 logger.info("[Gateway] Registered enhanced objective router at /api/objective")
+
+# Register DAG comprehensive analysis router
+app.include_router(dag_comprehensive_router)
+logger.info("[Gateway] Registered DAG comprehensive router at /api/dag")
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
