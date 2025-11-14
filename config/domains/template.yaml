@@ -1,0 +1,85 @@
+# Custom Domain Template
+# Copy this file and customize for your specific domain
+
+domain:
+  name: custom_domain_name
+  display_name: "Custom Domain Display Name"
+  description: "Description of what this domain is for"
+
+keywords:
+  strong:
+    # High-importance keywords (strongly indicate this domain)
+    - keyword1
+    - keyword2
+    - keyword3
+  medium:
+    # Medium-importance keywords (moderately indicate this domain)
+    - keyword4
+    - keyword5
+  weak:
+    # Low-importance keywords (weakly indicate this domain, often shared with other domains)
+    - id
+    - date
+    - timestamp
+
+figures:
+  - name: custom_figure_1
+    display_name: "Figure 1 Display Name"
+    required_columns:
+      - y
+      - treatment
+    optional_columns:
+      - time
+    min_rows: 50
+    description: "Description of what this figure visualizes"
+    visualization:
+      type: line_chart  # Options: line_chart, bar_chart, heatmap, scatter, distribution
+      wolfram_script: "wolfram_scripts/custom/figure1.wls"  # Optional: Path to WolframONE script
+
+  - name: custom_figure_2
+    display_name: "Figure 2 Display Name"
+    required_columns:
+      - y
+    required_one_of:
+      - column_a
+      - column_b
+    min_rows: 100
+    min_groups: 3
+    description: "Another custom visualization"
+
+quality_gates:
+  - name: metric_threshold_check
+    metric: custom_metric_name
+    threshold:
+      min: 0.7  # Use 'min' for minimum threshold
+    severity: warning  # Options: error, warning
+
+  - name: data_quality_check
+    metric: missing_data_pct
+    threshold:
+      max: 0.05  # Use 'max' for maximum threshold
+    severity: error
+
+  - name: sample_size_check
+    metric: n_samples
+    threshold:
+      min: 1000
+    severity: warning
+
+# Additional configuration options
+config:
+  # Default visualization settings
+  default_color_scheme: "viridis"
+  default_confidence_level: 0.95
+
+  # Data preprocessing preferences
+  preprocessing:
+    auto_imputation: true
+    auto_scaling: true
+    outlier_detection: true
+
+  # Advanced settings
+  advanced:
+    parallel_processing: true
+    max_workers: 4
+    cache_results: true

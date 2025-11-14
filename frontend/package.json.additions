@@ -1,0 +1,7 @@
+{
+  "dependencies_to_add": {
+    "katex": "^0.16.9",
+    "@types/katex": "^0.16.7"
+  },
+  "installation_command": "npm install katex @types/katex"
+}
