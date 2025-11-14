@@ -1,6 +1,9 @@
 uploads/
 exports/
 figures/
+logs/
+*.log
+*.pid
 reports/*.csv
 *.png
 *.pdf
